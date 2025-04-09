@@ -68,9 +68,9 @@ class Calculator {
             return arr.count
         }
     }
-    func avg (_ arr: [Int]) -> Int{
+    func avg (_ arr: [Int]) -> Int?{
         if arr.isEmpty {
-            return 0
+            return nil
         }
         else {
             return add(arr) / arr.count
@@ -92,23 +92,26 @@ class Calculator {
     }
     func add (lhs: [String : Int], rhs:[String : Int]) -> [String : Int] {
         var result: [String: Int] = [:]
-        for key in lhs.keys {
-            if let l = lhs[key], let r = rhs[key] {
-                result[key] = l + r
-            }
+        let keys = Set(lhs.keys).union(rhs.keys)
+        for key in keys {
+            let l = lhs[key] ?? 0
+            let r = rhs[key] ?? 0
+            result[key] = l + r
         }
         return result
     }
     func subtract (lhs: [String : Int], rhs:[String : Int]) -> [String : Int] {
         var result: [String: Int] = [:]
-        for key in lhs.keys {
-            if let l = lhs[key], let r = rhs[key] {
-                result[key] = l - r
-            }
+        let keys = Set(lhs.keys).union(rhs.keys)
+        for key in keys {
+            let l = lhs[key] ?? 0
+            let r = rhs[key] ?? 0
+            result[key] = l - r
         }
         return result
     }
 }
+
 
 //: Don't change the name of this object (`calc`); it's used in all the tests.
 let calc = Calculator()
@@ -123,7 +126,30 @@ let calc = Calculator()
 //: Keep in mind that writing new tests may reveal ambiguity in the specification above--if that's the case, document the ambiguity, declare what you think *should* happen, and write the test to test for it.
 
 // ===== Your tests go here
+// Negatives
+calc.add([1, 2, 3, 4, -5]) == 5
+calc.multiply([1, 2, -3, 4, 5]) == -120
+calc.count([1, 2, -3, 4, 5, 6, 7, 8]) == 8
+calc.avg([-2, 2, -2, 2, -2, 2]) == 0
+calc.avg([-1]) == -1
 
+// The specification doesn't mention about how shall we do empty array cases in average
+// I think it should throw some exception. But I'm not sure how to do it, so return nil instead since it is undefined in principle
+calc.avg([]) == nil
+
+// The specification doesn't mention about how shall we divide 0, ie: 1 / 0 = ?
+// I think it should return a nil as dividing by 0 won't make sense and should return undefined
+calc.divide(lhs: 1, rhs: 0) == nil
+
+// The specification doesn't mention how shall we deal with dictionaries in case missing "x" or "y" or both
+// I think it should be valid operation and combine them as much as we can.
+// Which means if one has x and one has y we should combine them
+// If one has x one has both, we should do operation on x and leave the only y we have
+let pd3 = ["x" : 5]
+let pd4 = ["y" : 3]
+let pd5 = ["x" : 1, "y" : 2]
+calc.add(lhs : pd3, rhs : pd4) == ["x" : 5, "y" : 3]
+calc.add(lhs : pd5, rhs : pd4) == ["x" : 1, "y" : 5]
 //: ---
 //: ## Test code block
 //: Do not modify the code in this section
